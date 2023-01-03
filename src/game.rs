@@ -3,9 +3,8 @@
 #![allow(unused_variables)] // temporary
 
 use core::fmt;
-use std::{fmt::format, ops::Add};
 
-
+#[derive(Clone, Copy)]
 pub struct Game {
     grid: [[u32; 4]; 4],
     score: u32,
@@ -22,6 +21,8 @@ impl Game {
         
         game
     }
+
+
 
         // returns the *width* of the element, NOT the element itself
     fn find_widest_element_width(&self) -> u32 {
@@ -91,5 +92,11 @@ impl fmt::Display for Game {
         }
 
         write!(f, "{}", return_str)
+    }
+}
+
+impl Default for Game {
+    fn default() -> Self {
+        Game::new_game()
     }
 }
