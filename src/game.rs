@@ -1,8 +1,6 @@
 
-#![allow(dead_code)] // temporary
-#![allow(unused_variables)] // temporary
-
-use std::intrinsics::log10f32;
+// #![allow(dead_code)] // temporary
+// #![allow(unused_variables)] // temporary
 
 
 pub struct Game {
@@ -23,11 +21,16 @@ impl Game {
     }
 
     pub fn print_board(&self) -> String {
-        let return_str = String::new();
+        let mut return_str = String::new();
         // we want to make the board length dynamically expand 
         // based on the widest element in the board
         let widest_width = self.find_widest_element_width();
-        
+        // each line with values needs 8 spaces and 5 pipes 
+        // plus the width of the values
+        let line_width: usize = ((widest_width * 4) + 13u32) as usize;
+        for i in 0..line_width { return_str += "-"; }
+
+        return_str
     }
 
     // returns the *width* of the element, NOT the element itself
@@ -36,11 +39,11 @@ impl Game {
         for i in 0..4 {
             for j in 0..4 {
                 if self.grid[i][j] > biggest_so_far {
-                    let biggest_so_far = self.grid[i][j];
+                    biggest_so_far = self.grid[i][j];
                 }
             }
         }
-        let width: u32 = f32::log10(biggest_so_far) as u32;
+        let width: u32 = f32::log10(biggest_so_far as f32) as u32;
         width
     }
 
@@ -49,7 +52,7 @@ impl Game {
         let mut empty_tiles = Vec::new();
         for i in 0..4 {
             for j in 0..4 {
-                if self.grid == 0 {
+                if self.grid[i][j] == 0 {
                     empty_tiles.push((i,j));
                 }
             }
@@ -67,7 +70,7 @@ impl Game {
             };
         } else {
             self.game_over = true;
-            false
+            return false;
         }
         true
     }

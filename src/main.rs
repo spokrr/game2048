@@ -4,5 +4,5 @@ use std::io;
 
 fn main() {
     let mut game: Game = Game::new_game();
-    println!("running");
+    println!("{}", game.print_board());
 }
