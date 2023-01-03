@@ -11,6 +11,13 @@ pub struct Game {
     game_over: bool,
 }
 
+pub enum Direction {
+    Up,
+    Left,
+    Down,
+    Right
+}
+
 impl Game {
     pub fn new_game() -> Game {
         let mut game = Game { grid: [[0; 4]; 4], 
@@ -22,9 +29,25 @@ impl Game {
         game
     }
 
+    pub fn parse_move(move_: &str) -> Result<Direction, &str> {
+        match move_.to_lowercase().as_str() {
+            "w" => Ok(Direction::Up),
+            "a" => Ok(Direction::Left),
+            "s" => Ok(Direction::Down),
+            "d" => Ok(Direction::Right),
+            _ => Err("invalid direction"),
+        }
+    }
 
+    pub fn game_move(&self, dir: Direction) {
+        println!("DEBUG: moved {}", dir);
+    }
 
-        // returns the *width* of the element, NOT the element itself
+    pub fn is_over(&self) -> bool {
+        self.game_over
+    }
+
+    // returns the *width* of the element, NOT the element itself
     fn find_widest_element_width(&self) -> u32 {
         let mut biggest_so_far = self.grid[0][0];
         for i in 0..4 {
@@ -92,6 +115,18 @@ impl fmt::Display for Game {
         }
 
         write!(f, "{}", return_str)
+    }
+}
+
+impl fmt::Display for Direction {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            Direction::Up => write!(f, "Up"),
+            Direction::Left => write!(f, "Left"),
+            Direction::Down => write!(f, "Down"),
+            Direction::Right => write!(f, "Right")
+            // _ => write!(f, "Err")
+        }
     }
 }
 
