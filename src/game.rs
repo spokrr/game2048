@@ -1,6 +1,9 @@
 
-// #![allow(dead_code)] // temporary
-// #![allow(unused_variables)] // temporary
+#![allow(dead_code)] // temporary
+#![allow(unused_variables)] // temporary
+
+use core::fmt;
+use std::{fmt::format, ops::Add};
 
 
 pub struct Game {
@@ -20,20 +23,7 @@ impl Game {
         game
     }
 
-    pub fn print_board(&self) -> String {
-        let mut return_str = String::new();
-        // we want to make the board length dynamically expand 
-        // based on the widest element in the board
-        let widest_width = self.find_widest_element_width();
-        // each line with values needs 8 spaces and 5 pipes 
-        // plus the width of the values
-        let line_width: usize = ((widest_width * 4) + 13u32) as usize;
-        for i in 0..line_width { return_str += "-"; }
-
-        return_str
-    }
-
-    // returns the *width* of the element, NOT the element itself
+        // returns the *width* of the element, NOT the element itself
     fn find_widest_element_width(&self) -> u32 {
         let mut biggest_so_far = self.grid[0][0];
         for i in 0..4 {
@@ -43,7 +33,7 @@ impl Game {
                 }
             }
         }
-        let width: u32 = f32::log10(biggest_so_far as f32) as u32;
+        let width: u32 = f32::log10(biggest_so_far as f32) as u32 + 1;
         width
     }
 
@@ -75,4 +65,31 @@ impl Game {
         true
     }
 
+}
+
+impl fmt::Display for Game {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let mut return_str = String::new();
+        // we want to make the board length dynamically expand 
+        // based on the widest element in the board
+        let widest_width = self.find_widest_element_width();
+        // each line with values needs 8 spaces and 5 pipes 
+        // plus the width of the values
+        let line_width: usize = ((widest_width * 4) + 13) as usize;
+        for _i in 0..line_width { return_str += "-"; }
+        for (i, arr) in self.grid.iter().enumerate() {
+            return_str += "\n";
+            for (j, element) in arr.iter().enumerate() {
+                let width = widest_width as usize + 2;
+                return_str += "|";
+                return_str += format!("{:^width$}", element).as_str();
+                // return_str += "|";
+            }
+            return_str += "|";
+            return_str += "\n";
+            for _i in 0..line_width { return_str += "-"; }
+        }
+
+        write!(f, "{}", return_str)
+    }
 }
