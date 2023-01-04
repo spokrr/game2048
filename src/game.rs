@@ -39,8 +39,60 @@ impl Game {
         }
     }
 
-    pub fn game_move(&self, dir: Direction) {
+    pub fn game_move(&mut self, dir: Direction) {
+        
+        match dir {
+            Direction::Up => { self.merge_up(); self.move_up(); self.merge_up(); },
+            Direction::Left => { self.merge_left(); self.move_left(); self.merge_left(); },
+            Direction::Down => { self.merge_down(); self.move_down(); self.merge_down(); },
+            Direction::Right => { self.merge_right(); self.move_right(); self.merge_right(); },
+        }
         println!("DEBUG: moved {}", dir);
+        println!("DEBUG: adding random tile");
+        self.add_rand_tile();
+    }
+
+    fn move_up(&mut self) {
+
+    }
+
+    fn merge_up(&mut self) {
+        for i in 1..3 {
+            for j in 0..3 {
+                if self.grid[i][j] != 0 {
+                    if self.grid[i][j] == self.grid[i-1][j] {
+                        self.grid[i][j] = 0;
+                        self.grid[i-1][j] *= 2;
+                        println!("DEBUG: merging tile {0}, {1} upwards! the value of {2}, {3} is now {4}", 4 - j, 4 - i, (4 - j), (4 - i) + 1, self.grid[i-1][j]);
+                    }
+                }
+
+            }
+        }
+    }
+
+    fn move_left(&mut self) {
+
+    }
+
+    fn merge_left(&mut self) {
+
+    }
+
+    fn move_down(&mut self) {
+
+    }
+
+    fn merge_down(&mut self) {
+
+    }
+
+    fn move_right(&mut self) {
+
+    }
+
+    fn merge_right(&mut self) {
+
     }
 
     pub fn is_over(&self) -> bool {

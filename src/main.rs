@@ -10,25 +10,27 @@ fn main() {
     println!("║{:^28}║", " Welcome to 2048! ");
     println!("╚{:═^28}╝", "");
 
-    let game: Game = Game::new_game();
+    let mut game: Game = Game::new_game();
 
     // main game loop
     while !game.is_over() {
         println!("{}", game.to_string());
         println!("Enter move (w/a/s/d) or q to quit:");
-        let mut move_ = String::new();
-        io::stdin().read_line(&mut move_).expect("Failed to read line");
-        let move_= move_.trim().to_lowercase();
-        let move_ = move_.as_str();
+        let mut inp = String::new();
+        io::stdin().read_line(&mut inp).expect("Failed to read line");
+        let inp= inp.trim().to_lowercase();
+        let inp = inp.as_str();
 
-        if move_ == "q" {
+        if inp == "q" {
             break;
         }
 
-        match Game::parse_move(move_) {
+        match Game::parse_move(inp) {
             Ok(dir) => game.game_move(dir),
             Err(err) => println!("Invalid direction! err: {}", err),
         }    
 
     }
+
+    println!("Game over!");
 }
