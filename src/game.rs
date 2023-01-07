@@ -3,6 +3,7 @@
 #![allow(unused_variables)] // temporary
 
 use core::fmt;
+use std::str::FromStr;
 
 #[derive(Clone, Copy)]
 pub struct Game {
@@ -63,7 +64,8 @@ impl Game {
                     if self.grid[i][j] == self.grid[i-1][j] {
                         self.grid[i][j] = 0;
                         self.grid[i-1][j] *= 2;
-                        println!("DEBUG: merging tile {0}, {1} upwards! the value of {2}, {3} is now {4}", 4 - j, 4 - i, (4 - j), (4 - i) + 1, self.grid[i-1][j]);
+                        println!("DEBUG: merging tile {0},{1} upwards! the value of {2},{3} is now {4}",
+                                                     j+1,4-i,                       j+1,4-i+1, self.grid[i-1][j]);
                     }
                 }
 
@@ -113,8 +115,9 @@ impl Game {
         width
     }
 
-    // adds a random 2 or 4 on the board, returns true if successful, false if failure
-    fn add_rand_tile(&mut self) -> bool {
+    // adds a random 2 or 4 on the board, returns the coords if successful, None if failure
+    fn add_rand_tile(&mut self) -> Option<String> {
+        let mut coords: String;
         let mut empty_tiles = Vec::new();
         for i in 0..4 {
             for j in 0..4 {
@@ -134,11 +137,12 @@ impl Game {
             } else {
                 2
             };
+            coords = String::from(format!("{},{}", y + 1, 4 - x));
+            return Some(coords)
         } else {
             self.game_over = true;
-            return false;
+            return None;
         }
-        true
     }
 
 }
