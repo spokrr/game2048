@@ -1,10 +1,4 @@
-
-#![allow(dead_code)] // temporary
-#![allow(unused_variables)] // temporary
-
 use core::fmt;
-use std::str::FromStr;
-use std::collections::BTreeSet;
 
 #[derive(Clone, Copy)]
 pub struct Game {
@@ -114,7 +108,7 @@ impl Game {
     }
 
     fn merge_right(&mut self) {
-
+        
     }
 
     pub fn is_over(&self) -> bool {
@@ -183,9 +177,9 @@ impl fmt::Display for Game {
         // plus the width of the values
         let line_width: usize = ((widest_width * 4) + 13) as usize;
         for _i in 0..line_width { return_str += "-"; }
-        for (i, arr) in self.grid.iter().enumerate() {
+        for arr in self.grid.iter() {
             return_str += "\n";
-            for (j, element) in arr.iter().enumerate() {
+            for element in arr.iter() {
                 let width = widest_width as usize + 2;
                 return_str += "|";
                 return_str += format!("{:^width$}", element).as_str();
@@ -195,8 +189,10 @@ impl fmt::Display for Game {
             return_str += "\n";
             for _i in 0..line_width { return_str += "-"; }
         }
-
-        write!(f, "{}", return_str)
+        /*
+        TODO: fix below
+        */
+        write!(f, "{}", return_str) // inefficient, should write to f instead of return_str
     }
 }
 
