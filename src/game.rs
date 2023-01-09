@@ -4,12 +4,20 @@
 
 use core::fmt;
 use std::str::FromStr;
+use std::collections::BTreeSet;
 
 #[derive(Clone, Copy)]
 pub struct Game {
     grid: [[u32; 4]; 4],
     score: u32,
     game_over: bool,
+}
+
+
+#[derive(PartialEq)]
+pub struct Coords {
+    i: usize,
+    j: usize,
 }
 
 pub enum Direction {
@@ -49,26 +57,38 @@ impl Game {
             Direction::Right => { self.merge_right(); self.move_right(); self.merge_right(); },
         }
         println!("DEBUG: moved {}", dir);
-        println!("DEBUG: adding random tile");
-        self.add_rand_tile();
+        println!("DEBUG: adding random tile at {}", self.add_rand_tile().unwrap_or(String::from("ERR")));
     }
 
     fn move_up(&mut self) {
+        // first we find non-empty tiles
+        let mut non_empty_tiles = Vec::new();
+        for i in 0..4 {
+            for j in 0..4 {
+                if self.grid[i][j] != 0 {
+                    non_empty_tiles.push(Coords::from((i, j)));
+                }
+            }
+        }
 
+        for coords in non_empty_tiles.iter_mut() {
+            while coords.i > 0 && self.grid[coords.i-1][coords.j] == 0 {
+                self.grid[coords.i-1][coords.j] = self.grid[coords.i][coords.j];
+                self.grid[coords.i][coords.j] = 0;
+                coords.i -= 1;
+            }
+        }
     }
 
     fn merge_up(&mut self) {
-        for i in 1..3 {
-            for j in 0..3 {
-                if self.grid[i][j] != 0 {
-                    if self.grid[i][j] == self.grid[i-1][j] {
-                        self.grid[i][j] = 0;
-                        self.grid[i-1][j] *= 2;
-                        println!("DEBUG: merging tile {0},{1} upwards! the value of {2},{3} is now {4}",
-                                                     j+1,4-i,                       j+1,4-i+1, self.grid[i-1][j]);
-                    }
+        for i in 1..4 {
+            for j in 0..4 {
+                if (self.grid[i][j] != 0) && (self.grid[i][j] == self.grid[i-1][j]) {
+                    self.grid[i][j] = 0;
+                    self.grid[i-1][j] *= 2;
+                    println!("DEBUG: merging tile {0},{1} {5}wards! the value of {2},{3} is now {4}",
+                                                    j+1,4-i,                       j+1,4-i+1, self.grid[i-1][j], Direction::Up);
                 }
-
             }
         }
     }
@@ -117,7 +137,7 @@ impl Game {
 
     // adds a random 2 or 4 on the board, returns the coords if successful, None if failure
     fn add_rand_tile(&mut self) -> Option<String> {
-        let mut coords: String;
+        let coords: String;
         let mut empty_tiles = Vec::new();
         for i in 0..4 {
             for j in 0..4 {
@@ -145,6 +165,12 @@ impl Game {
         }
     }
 
+}
+
+impl Coords {
+    fn from((i, j): (usize, usize)) -> Coords {
+        Coords { i: i, j: j }
+    }
 }
 
 impl fmt::Display for Game {
