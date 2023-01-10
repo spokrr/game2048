@@ -23,6 +23,7 @@ pub enum Direction {
 
 impl Game {
     pub fn new_game() -> Game {
+        // empty board, add two random tiles
         let mut game = Game { grid: [[0; 4]; 4], 
                                     score: 0,
                                     game_over: false };
@@ -33,6 +34,7 @@ impl Game {
     }
 
     pub fn parse_move(move_: &str) -> Result<Direction, &str> {
+        // for parsing directions in the case of a TUI
         match move_.to_lowercase().as_str() {
             "w" => Ok(Direction::Up),
             "a" => Ok(Direction::Left),
@@ -43,7 +45,7 @@ impl Game {
     }
 
     pub fn game_move(&mut self, dir: Direction) {
-        
+        // for performing the movements
         match dir {
             Direction::Up => { self.merge_up(); self.move_up(); self.merge_up(); },
             Direction::Left => { self.merge_left(); self.move_left(); self.merge_left(); },
@@ -56,15 +58,9 @@ impl Game {
 
     fn move_up(&mut self) {
         // first we find non-empty tiles
-        let mut non_empty_tiles = Vec::new();
-        for i in 0..4 {
-            for j in 0..4 {
-                if self.grid[i][j] != 0 {
-                    non_empty_tiles.push(Coords::from((i, j)));
-                }
-            }
-        }
+        let mut non_empty_tiles = self.find_non_empty_tiles();
 
+        // attempt to move each non-empty tile up, starting from the top and working downwards
         for coords in non_empty_tiles.iter_mut() {
             while coords.i > 0 && self.grid[coords.i-1][coords.j] == 0 {
                 self.grid[coords.i-1][coords.j] = self.grid[coords.i][coords.j];
@@ -75,8 +71,22 @@ impl Game {
     }
 
     fn merge_up(&mut self) {
-        for i in 1..4 {
+        let non_empty_tiles = self.find_non_empty_tiles();
+
+        for coords in non_empty_tiles.iter() {
+            // make sure we don't array out of bounds
+            if (coords.i > 0) && (self.grid[coords.i][coords.j] == self.grid[coords.i-1][coords.j]) {
+                self.grid[coords.i][coords.j] = 0;
+                self.grid[coords.i-1][coords.j] *= 2;
+                println!("DEBUG: merging tile {0},{1} {5}wards! the value of {2},{3} is now {4}",
+                                       coords.j+1,4-coords.i,         coords.j+1,4-coords.i+1, self.grid[coords.i-1][coords.j], Direction::Up);
+            }
+        }
+
+        // previous implementation, doesn't use find_non_empty_tiles()
+        /* for i in 1..4 {
             for j in 0..4 {
+                // if two tiles vertically are the same, merge em
                 if (self.grid[i][j] != 0) && (self.grid[i][j] == self.grid[i-1][j]) {
                     self.grid[i][j] = 0;
                     self.grid[i-1][j] *= 2;
@@ -84,11 +94,21 @@ impl Game {
                                                     j+1,4-i,                       j+1,4-i+1, self.grid[i-1][j], Direction::Up);
                 }
             }
-        }
+        } */
     }
 
     fn move_left(&mut self) {
+        // first we find non-empty tiles
+        let mut non_empty_tiles = self.find_non_empty_tiles();
 
+        // attempt to move each non-empty tile left, starting from the left and working right
+        for coords in non_empty_tiles.iter_mut() {
+            while coords.j > 0 && self.grid[coords.i][coords.j-1] == 0 {
+                self.grid[coords.i][coords.j-1] = self.grid[coords.i][coords.j];
+                self.grid[coords.i][coords.j] = 0;
+                coords.j -= 1;
+            }
+        }
     }
 
     fn merge_left(&mut self) {
@@ -96,15 +116,64 @@ impl Game {
     }
 
     fn move_down(&mut self) {
+        // first we find non-empty tiles
+        let mut non_empty_tiles = self.find_non_empty_tiles();
+        // reverse the vec because it's sorted top to bottom initially
+        non_empty_tiles.reverse();
 
+        // attempt to move each non-empty tile down, starting from the bottom and working upwards
+        for coords in non_empty_tiles.iter_mut() {
+            while coords.i < 3 && self.grid[coords.i+1][coords.j] == 0 {
+                self.grid[coords.i+1][coords.j] = self.grid[coords.i][coords.j];
+                self.grid[coords.i][coords.j] = 0;
+                coords.i += 1;
+            }
+        }
     }
 
     fn merge_down(&mut self) {
+        let mut non_empty_tiles = self.find_non_empty_tiles();
+        // reverse so we go bottom to top
+        non_empty_tiles.reverse();
 
+        for coords in non_empty_tiles.iter() {
+            // make sure we don't array out of bounds
+            if (coords.i < 3) && (self.grid[coords.i][coords.j] == self.grid[coords.i+1][coords.j]) {
+                self.grid[coords.i][coords.j] = 0;
+                self.grid[coords.i+1][coords.j] *= 2;
+                println!("DEBUG: merging tile {0},{1} {5}wards! the value of {2},{3} is now {4}",
+                                       coords.j+1,4-coords.i,         coords.j+1,4-coords.i-1, self.grid[coords.i+1][coords.j], Direction::Down);
+            }
+        }
     }
 
     fn move_right(&mut self) {
+        // first we find non-empty tiles
+        let mut non_empty_tiles = self.find_non_empty_tiles();
+        // reverse the vec because it's sorted left to right initially
+        non_empty_tiles.reverse();
 
+        // attempt to move each non-empty tile right, starting from the right and working left
+        for coords in non_empty_tiles.iter_mut() {
+            while coords.j < 3 && self.grid[coords.i][coords.j+1] == 0 {
+                self.grid[coords.i][coords.j+1] = self.grid[coords.i][coords.j];
+                self.grid[coords.i][coords.j] = 0;
+                coords.j += 1;
+            }
+        }
+    }
+
+    fn find_non_empty_tiles(&mut self,) -> Vec<Coords> {
+        let mut non_empty_tiles = Vec::new();
+        for i in 0..4 {
+            for j in 0..4 {
+                if self.grid[i][j] != 0 {
+                    non_empty_tiles.push(Coords::from((i, j)));
+                    // sorted from top to bottom and left to right
+                }
+            }
+        }
+        non_empty_tiles
     }
 
     fn merge_right(&mut self) {
@@ -113,6 +182,10 @@ impl Game {
 
     pub fn is_over(&self) -> bool {
         self.game_over
+    }
+
+    pub fn get_score(&self) -> u32 {
+        self.score
     }
 
     // returns the *width* of the element, NOT the element itself
