@@ -3,11 +3,11 @@ use std::io;
 
 use game::Game;
 
-use crate::game::Direction::*;
+// use crate::game::Direction::*;
 
 fn main() {
     println!("╔{:═^28}╗", "");
-    println!("║{:^28}║", " Welcome to 2048! ");
+    println!("║{:^28}║", "Welcome to 2048!");
     println!("╚{:═^28}╝", "");
 
     let mut game: Game = Game::new_game();
@@ -27,10 +27,11 @@ fn main() {
 
         match Game::parse_move(inp) {
             Ok(dir) => game.game_move(dir),
-            Err(err) => println!("Invalid direction! err: {}", err),
+            Err(_) => println!("Invalid direction!"),
         }    
 
     }
 
     println!("Game over!");
+    println!("Score: {}", game.get_score());
 }
